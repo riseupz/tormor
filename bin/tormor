@@ -30,7 +30,7 @@ if __name__ == "__main__":
             print()
             print(e)
             exit(2)
-        except OdinSchemaNotPresent:
+        except SchemaNotPresent:
             print("This database does not have the Tormor schemas installed")
             print("Use `tormor enable-modules` to bootstrap it")
             exit(3)
