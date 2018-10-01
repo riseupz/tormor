@@ -56,6 +56,7 @@ def include(cnx, filename):
 COMMANDS = {
     "enable-modules": enablemodules,
     "migrate": migrate,
+    "include": include,
     "sql": execute_sql_file,
 }
 
