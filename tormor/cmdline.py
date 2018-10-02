@@ -1,10 +1,17 @@
 import csv
 from tormor.connection import execute_sql_file
 from tormor.schema import enablemodules, migrate
+import os
 
 
-SHORTOPTS = "?d:h:p:U:"
-PGOPTMAP = {"-d": "dbname", "-h": "host", "-p": "port", "-U": "user"}
+SHORTOPTS = "?d:h:p:U:P:"
+PGOPTMAP = {
+    "-d": ("dbname", "PGDATABASE"), 
+    "-h": ("host", "PGHOST"), 
+    "-p": ("port", "PGPORT"), 
+    "-U": ("user", "PGUSER"),
+    "-P": ("password", "PGPASSWORD")
+}
 
 HELPTEXT = """Tormor -- Migration management
 
@@ -16,6 +23,8 @@ opts are one or more of:
     -h hostname             Postgres host
     -d database             Database name
     -U username             Database username (role)
+    -p port                 Database port
+    -P password             Database password (Not recommended, use environment variable PGPASSWORD instead)
 
 Command is one of:
     enable-modules mod1 [mod2 [mod3 ...]]
@@ -39,9 +48,11 @@ Command is one of:
 
 def makedsn(opts, args):
     dsnargs = {}
-    for arg, opt in PGOPTMAP.items():
+    for arg, (opt, env) in PGOPTMAP.items():
         if arg in opts:
             dsnargs[opt] = opts[arg]
+        elif os.getenv(env):
+            dsnargs[opt] = os.getenv(env)
     return " ".join(["%s='%s'" % (n, v) for n, v in dsnargs.items()])
 
 
