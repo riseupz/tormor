@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name="tormor",
-    version="1.0.0",
+    version="1.0.1",
     description="Database migration helper",
     author="Tle Ekkul",
     author_email="aryuth.ekkul@proteus-tech.com",
