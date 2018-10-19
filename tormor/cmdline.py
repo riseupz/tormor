@@ -1,7 +1,10 @@
 import csv
-from tormor.connection import execute_sql_file
+from tormor.connection import execute_sql_file, Connection, SchemaNotPresent
 from tormor.schema import enablemodules, migrate
+from psycopg2 import ProgrammingError
 import os
+import sys
+from getopt import gnu_getopt
 
 
 SHORTOPTS = "?d:h:p:U:P:"
@@ -82,3 +85,30 @@ def command(cnx, cmd, *args):
     else:
         raise UnknownCommand(cmd)
 
+def script():
+    optlist, args = gnu_getopt(sys.argv, SHORTOPTS)
+    opts = dict(optlist)
+
+    if len(args) < 2:
+        print("No command given. Type 'tormor help' for help")
+        exit(3)
+    elif '-?' in opts or args[1] == 'help':
+        print(HELPTEXT)
+    else:
+        try:
+            dsn = makedsn(opts, args)
+            cnx = Connection(dsn)
+            command(cnx, *(args[1:]))
+            cnx.commit()
+        except UnknownCommand as e:
+            print("Unknown command '{}'. Type 'tormor help' for help".format(e))
+            exit(1)
+        except ProgrammingError as e:
+            print("** Postgres error", e.pgcode)
+            print()
+            print(e)
+            exit(2)
+        except SchemaNotPresent:
+            print("This database does not have the Tormor schemas installed")
+            print("Use `tormor enable-modules` to bootstrap it")
+            exit(3)
