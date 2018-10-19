@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 "psycopg2-binary" = "*"
 flit = "*"
-get-version = "*"
 
 [dev-packages]
 
