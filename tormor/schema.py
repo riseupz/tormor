@@ -1,6 +1,6 @@
-from tormor.connection import execute_sql_file, SchemaNotPresent
 import os
 
+from tormor.connection import SchemaNotPresent, execute_migration
 
 MYDIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,14 +38,16 @@ def _get_schema_files_path():
 DEFAULT_SCHEMA_FILES_PATH = _get_schema_files_path()
 
 
-def find_schema_path():
+def find_schema_paths(schema_files_path=DEFAULT_SCHEMA_FILES_PATH):
     """Searches the locations in the `SCHEMA_FILES_PATH` to
     try to find where the schema SQL files are located.
     """
-    schema_files_path = DEFAULT_SCHEMA_FILES_PATH
+    paths = []
     for path in schema_files_path:
         if os.path.isdir(path):
-            return path
+            paths.append(path)
+    if paths:
+        return paths
     raise SchemaFilesNotFound("Searched " + os.pathsep.join(schema_files_path))
 
 
@@ -66,14 +68,15 @@ def enablemodules(cnx, *modules):
 
 def migrate(cnx):
     ## Find and execute all migration scripts that haven't already been run
-    root = find_schema_path()
-    scripts = []
+    paths = find_schema_paths()
     migrations = set(cnx.select("SELECT module_name, migration FROM migration"))
-    for dirname, subdirs, files in os.walk(root):
-        relpath = os.path.relpath(dirname, root)
-        if relpath != "." and relpath in cnx.load_modules():
-            scripts += [(relpath, f) for f in files if f.endswith(".sql")]
-    scripts.sort(key=lambda m: m[1])
-    for (mod, migration) in scripts:
-        if (mod, migration) not in migrations:
-            execute_sql_file(cnx, os.path.join(root, mod, migration))
+    for path in paths:
+        scripts = []
+        for dirname, subdirs, files in os.walk(path):
+            relpath = os.path.relpath(dirname, path)
+            if relpath != "." and relpath in cnx.load_modules():
+                scripts += [(relpath, f) for f in files if f.endswith(".sql")]
+        scripts.sort(key=lambda m: m[1])
+        for (mod, migration) in scripts:
+            if (mod, migration) not in migrations:
+                execute_migration(cnx, mod, migration, os.path.join(path, mod, migration))
