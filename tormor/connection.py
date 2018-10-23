@@ -1,10 +1,10 @@
 import base64
+import os
 from datetime import datetime, timezone
 from getpass import getpass
-import os
+
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_SERIALIZABLE
-
 
 EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
@@ -13,12 +13,14 @@ class SchemaNotPresent(Exception):
     """Thrown if we can't load the list of modules because the `modules`
     table doesn't exist.
     """
+
     pass
 
 
 class ModuleNotPresent(Exception):
     """ Thrown when a required module has not been installed.
     """
+
     pass
 
 
@@ -61,19 +63,16 @@ class Connection(object):
         """
         return module in self.load_modules()
 
-
     def execute(self, cmd, *args, **kwargs):
         """ Execute the SQL command and return the data rows as tuples
         """
         self.cursor.execute(cmd, *args, **kwargs)
-
 
     def select(self, cmd, *args, **kwargs):
         """ Execute the SQL command and return the data rows as tuples
         """
         self.cursor.execute(cmd, *args, **kwargs)
         return self.cursor.fetchall()
-
 
     def commit(self):
         self.pg.commit()
@@ -83,6 +82,24 @@ def execute_sql_file(cnx, filename):
     try:
         with open(filename) as f:
             cmds = f.read()
+            cnx.cursor.execute(cmds)
+        cnx.load_modules()
+        print("Executed", filename)
+    except Exception:
+        print("Error whilst running", filename)
+        raise
+
+
+def execute_migration(cnx, module, migration, filename):
+    try:
+        with open(filename) as f:
+            cmds = """
+                INSERT INTO module (name) VALUES('{module}') ON CONFLICT (name) DO NOTHING;
+                INSERT INTO migration (module_name, migration)  VALUES('{module}', '{migration}') ON CONFLICT (module_name, migration) DO NOTHING;    
+                {cmds}
+            """.format(
+                module=module, migration=migration, cmds=f.read()
+            )
             cnx.cursor.execute(cmds)
         cnx.load_modules()
         print("Executed", filename)
