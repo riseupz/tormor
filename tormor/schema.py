@@ -70,13 +70,16 @@ def migrate(cnx):
     ## Find and execute all migration scripts that haven't already been run
     paths = find_schema_paths()
     migrations = set(cnx.select("SELECT module_name, migration FROM migration"))
+
     for path in paths:
         scripts = []
         for dirname, subdirs, files in os.walk(path):
             relpath = os.path.relpath(dirname, path)
             if relpath != "." and relpath in cnx.load_modules():
                 scripts += [(relpath, f) for f in files if f.endswith(".sql")]
+
         scripts.sort(key=lambda m: m[1])
+
         for (mod, migration) in scripts:
             if (mod, migration) not in migrations:
                 execute_migration(cnx, mod, migration, os.path.join(path, mod, migration))

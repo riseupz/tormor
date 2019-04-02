@@ -9,11 +9,11 @@ from getopt import gnu_getopt
 
 SHORTOPTS = "?d:h:p:U:P:"
 PGOPTMAP = {
-    "-d": ("dbname", "PGDATABASE"), 
-    "-h": ("host", "PGHOST"), 
-    "-p": ("port", "PGPORT"), 
+    "-d": ("dbname", "PGDATABASE"),
+    "-h": ("host", "PGHOST"),
+    "-p": ("port", "PGPORT"),
     "-U": ("user", "PGUSER"),
-    "-P": ("password", "PGPASSWORD")
+    "-P": ("password", "PGPASSWORD"),
 }
 
 HELPTEXT = """Tormor -- Migration management
@@ -51,6 +51,7 @@ Command is one of:
 
 def makedsn(opts, args):
     dsnargs = {}
+
     for arg, (opt, env) in PGOPTMAP.items():
         if arg in opts:
             dsnargs[opt] = opts[arg]
@@ -85,7 +86,9 @@ def command(cnx, cmd, *args):
     else:
         raise UnknownCommand(cmd)
 
+
 def script():
+
     optlist, args = gnu_getopt(sys.argv, SHORTOPTS)
     opts = dict(optlist)
 
@@ -112,3 +115,6 @@ def script():
             print("This database does not have the Tormor schemas installed")
             print("Use `tormor enable-modules` to bootstrap it")
             exit(3)
+
+
+script()
