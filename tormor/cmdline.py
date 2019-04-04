@@ -91,12 +91,12 @@ def script():
 
     optlist, args = gnu_getopt(sys.argv, SHORTOPTS)
     opts = dict(optlist)
-
-    if len(args) < 2:
-        print("No command given. Type 'tormor help' for help")
+    print(opts)
+    if '-?' in opts or args[1] == 'help':
         exit(3)
-    elif '-?' in opts or args[1] == 'help':
         print(HELPTEXT)
+    elif len(args) < 2:
+        print("No command given. Type 'tormor help' for help")
     else:
         try:
             dsn = makedsn(opts, args)
