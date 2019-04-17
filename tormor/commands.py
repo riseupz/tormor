@@ -96,27 +96,24 @@ def execute_sql_file(ctx, sqlfile):
 @click.argument('filename', required=True, nargs=1)
 def include(ctx, filename):
     """Run all commands inside a file"""
-    try:
-        with open(filename, newline="") as f:
-            lines = csv.reader(f, delimiter=" ")
-            for each_line in lines:
-                if len(each_line) and not each_line[0].startswith("#"):
-                    cmd = each_line.pop(0)
-                    if cmd == "migrate":
-                        if len(each_line) == 0:
-                            ctx.invoke(migrate, dry_run = False)
-                        elif len(each_line) == 1:
-                            ctx.invoke(migrate, dry_run = True if each_line[0] == '--dry-run' else False)
-                        else:
-                            raise click.ClickException("Error in migrate command")
-                    elif cmd == "enable-modules":
-                        ctx.invoke(enable_modules, modules = each_line)
-                    elif cmd == "sql" and len(each_line) == 1:
-                        ctx.invoke(execute_sql_file, sqlfile = each_line[0])
+    with open(filename, newline="") as f:
+        lines = csv.reader(f, delimiter=" ")
+        for each_line in lines:
+            if len(each_line) and not each_line[0].startswith("#"):
+                cmd = each_line.pop(0)
+                if cmd == "migrate":
+                    if len(each_line) == 0:
+                        ctx.invoke(migrate, dry_run = False)
+                    elif len(each_line) == 1:
+                        ctx.invoke(migrate, dry_run = True if each_line[0] == '--dry-run' else False)
                     else:
-                        raise click.ClickException("Unknown command or parameter")
-    except Exception as e:
-        print("Error whilst running")
+                        raise click.ClickException("Error in migrate command")
+                elif cmd == "enable-modules":
+                    ctx.invoke(enable_modules, modules = each_line)
+                elif cmd == "sql" and len(each_line) == 1:
+                    ctx.invoke(execute_sql_file, sqlfile = each_line[0])
+                else:
+                    raise click.ClickException("Unknown command or parameter")
 
 def get_migrate_sql(module, migration, filename):
     try:

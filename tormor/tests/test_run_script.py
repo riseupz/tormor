@@ -48,7 +48,8 @@ class TestScript():
         self.conn.execute("DROP TABLE module")
 
     def test_script_to_include(self):
-        result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'include', 'script_file.txt'])
+        self.conn.execute(BOOTSTRAP_SQL)
+        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'include', 'tests/script_file.txt'])
         result = self.conn.fetch("SELECT name FROM module")
         self.conn.execute("DROP TABLE migration")
         self.conn.execute("DROP TABLE module")
@@ -60,6 +61,7 @@ class TestScript():
         assert result.exit_code == click.UsageError.exit_code
 
     def test_script_to_enable_modules(self):
+        self.conn.execute(BOOTSTRAP_SQL)
         self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'enable-modules', 'module1', 'module2'])
         result = self.conn.fetch("SELECT name FROM module")
         self.conn.execute("DROP TABLE migration")
@@ -72,7 +74,7 @@ class TestScript():
         assert result.exit_code == click.UsageError.exit_code
 
     def test_script_to_execute_sql(self):
-        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'sql', 'Schema/customer/01_customer.sql'])
+        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'sql', 'tests/Schema/customer/01_customer.sql'])
         result = self.conn.fetch("SELECT * FROM customer")
         actual_result = set(record.get("name") for record in result)
         expected_result = {"Customer1", "Customer2", "Customer3"}
