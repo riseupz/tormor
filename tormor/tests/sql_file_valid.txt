@@ -1,0 +1,5 @@
+CREATE TABLE module(
+    name text NOT NULL,
+    CONSTRAINT module_pk PRIMARY KEY(name));
+INSERT INTO module(name)
+    VALUES('Module1'); 

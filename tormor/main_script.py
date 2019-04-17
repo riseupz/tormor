@@ -59,5 +59,3 @@ script.add_command(migrate)
 script.add_command(enable_modules)
 script.add_command(execute_sql_file)
 script.add_command(include)
-
-# script()

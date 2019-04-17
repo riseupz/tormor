@@ -1,6 +1,8 @@
 from tormor.exceptions import SchemaNotPresent
+from tormor.path_helper import get_schema_path
 import csv
 import click
+import os
 
 # String of queries to add module
 ADD_MODULE = """INSERT INTO module(name) VALUES($1)"""
@@ -33,10 +35,24 @@ def migrate(ctx, dry_run):
     """Run all migrations"""
 
     conn = ctx.obj['cnx']
+    paths = get_schema_path()
+    migrated_modules = set(conn.fetch("SELECT module_name, migration FROM migration"))
+    to_be_run_scripts = []
+    query = ""
+    for each_path in paths:
+        for root, dirs, files in os.walk(each_path):
+            relpath = os.path.relpath(root, each_path)
+            if relpath != "." and relpath in conn.load_modules():
+                to_be_run_scripts += [(relpath, filepath, each_path) for filepath in files if filepath.endswith(".sql")]
+    to_be_run_scripts.sort(key=lambda m: m[1])
+    for (module, migration, path) in to_be_run_scripts:
+        if (module, migration) not in migrated_modules:
+            query += get_migrate_sql(module, migration, os.path.join(path, module, migration))
     if not dry_run:
-        print("NOT DRY RUN")
+        print("Migrating modules...")
+        conn.execute(query)
     else:
-        print("DRY RUN")
+        print(query)
 
 @subcommand.command('enable-modules')
 @click.pass_context
@@ -65,7 +81,7 @@ def execute_sql_file(ctx, sqlfile):
     """
 
     try:
-        conn = ctx.obj['cnx']
+        conn = ctx.obj['cnx'] 
         with open(sqlfile) as f:
             commands = f.read()
             conn.execute(commands)
@@ -86,7 +102,6 @@ def include(ctx, filename):
             for each_line in lines:
                 if len(each_line) and not each_line[0].startswith("#"):
                     cmd = each_line.pop(0)
-                    print(cmd)
                     if cmd == "migrate":
                         if len(each_line) == 0:
                             ctx.invoke(migrate, dry_run = False)
@@ -100,8 +115,22 @@ def include(ctx, filename):
                         ctx.invoke(execute_sql_file, sqlfile = each_line[0])
                     else:
                         raise click.ClickException("Unknown command or parameter")
-    except:
+    except Exception as e:
         print("Error whilst running")
 
-def migrate_sql_file(conn, module, migration, filename):
-    return
+def get_migrate_sql(module, migration, filename):
+    try:
+        commands = """"""
+        with open(filename) as f:
+            commands += """
+                INSERT INTO module (name) VALUES('{module}') ON CONFLICT (name) DO NOTHING;
+                INSERT INTO migration (module_name, migration)  VALUES('{module}', '{migration}') ON CONFLICT (module_name, migration) DO NOTHING;    
+                {cmds}
+            """.format(
+                module=module, migration=migration, cmds=f.read()
+            )
+        print("Read", filename)
+        return commands
+    except Exception:
+        print("Error whilst running", filename)
+        raise
