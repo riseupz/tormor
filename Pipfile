@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 "psycopg2-binary" = "*"
+black = "*"
+pytest = "*"
 
 [dev-packages]
 flit = "*"
