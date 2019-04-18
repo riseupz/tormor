@@ -52,10 +52,11 @@ def migrate(ctx, dry_run):
         if not dry_run:
             print("Migrating modules...")
             conn.execute(query)
+            print("Successfully migrated modules")
         else:
             print(query)
     else:
-        raise SchemaFilesNotFound
+        pass
 
 @subcommand.command('enable-modules')
 @click.pass_context
