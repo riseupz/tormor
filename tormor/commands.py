@@ -1,4 +1,4 @@
-from tormor.exceptions import SchemaNotPresent, SchemaFilesNotFound
+from tormor.exceptions import SchemaNotPresent
 from tormor.path_helper import get_schema_path
 import csv
 import click
