@@ -89,7 +89,6 @@ def execute_sql_file(ctx, sqlfile):
         with open(sqlfile) as f:
             commands = f.read()
             conn.execute(commands)
-        conn.load_modules()
         print(sqlfile, "successfully executed")
     except Exception:
         print("Error whilst running", sqlfile)
