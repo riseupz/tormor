@@ -10,7 +10,8 @@ home-page = "https://github.com/Proteus-tech/tormor"
 classifiers = ["License :: OSI Approved :: MIT License"]
 description-file = "README.md"
 requires = [
-    "psycopg2-binary==2.7.5"
+    "asyncpg==0.18.3",
+    "click==7.0",
 ]
 requires-python = "~=3.6"
 
