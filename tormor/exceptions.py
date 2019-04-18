@@ -9,6 +9,3 @@ class ModuleNotPresent(Exception):
 
 class SchemaPathNotFound(Exception):
     pass
-
-class UnknownCommand(Exception):
-    pass

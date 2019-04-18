@@ -1,5 +1,5 @@
 from tormor.path_helper import get_schema_path
-from tormor.exceptions import SchemaFilesNotFound, SchemaPathNotFound
+from tormor.exceptions import SchemaPathNotFound
 import pytest, os
 
 def test_get_schema_path_exist():

@@ -1,4 +1,4 @@
-from tormor.exceptions import SchemaNotPresent
+from tormor.exceptions import SchemaNotPresent, SchemaFilesNotFound
 from tormor.path_helper import get_schema_path
 import csv
 import click
@@ -48,11 +48,14 @@ def migrate(ctx, dry_run):
     for (module, migration, path) in to_be_run_scripts:
         if (module, migration) not in migrated_modules:
             query += get_migrate_sql(module, migration, os.path.join(path, module, migration))
-    if not dry_run:
-        print("Migrating modules...")
-        conn.execute(query)
+    if query:
+        if not dry_run:
+            print("Migrating modules...")
+            conn.execute(query)
+        else:
+            print(query)
     else:
-        print(query)
+        raise SchemaFilesNotFound
 
 @subcommand.command('enable-modules')
 @click.pass_context

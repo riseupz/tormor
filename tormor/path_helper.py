@@ -3,6 +3,7 @@ import os
 
 # Current directory path
 MYDIR = os.path.dirname(os.path.abspath(__file__))
+print(MYDIR)
 
 def get_schema_path():
     path = []
@@ -13,7 +14,7 @@ def get_schema_path():
         for root, dirs, files in os.walk(MYDIR):
             if "schema" in root.lower() and _check_not_subfolder(path, root):
                 path.append(root)
-        if not root:
+        if not path:
             raise SchemaPathNotFound
         return _check_valid_path(path)
 
