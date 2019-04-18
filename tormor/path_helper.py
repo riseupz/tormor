@@ -2,13 +2,13 @@ from tormor.exceptions import SchemaPathNotFound
 import os
 
 def get_schema_path():
-    MYDIR = os.getcwd()
+    mydir = os.getcwd()
     path = []
     env_schema_path = os.getenv("SCHEMA_PATH")
     if env_schema_path:
         return env_schema_path.split(os.pathsep)
     else:
-        for root, dirs, files in os.walk(MYDIR):
+        for root, dirs, files in os.walk(mydir):
             if "schema" in root.lower() and _check_not_subfolder(path, root):
                 path.append(root)
         if not path:
