@@ -120,17 +120,16 @@ def include(ctx, filename):
 
 def get_migrate_sql(module, migration, filename):
     try:
-        commands = """"""
         with open(filename) as f:
-            commands += """
+            commands = """
                 INSERT INTO module (name) VALUES('{module}') ON CONFLICT (name) DO NOTHING;
                 INSERT INTO migration (module_name, migration)  VALUES('{module}', '{migration}') ON CONFLICT (module_name, migration) DO NOTHING;    
                 {cmds}
             """.format(
                 module=module, migration=migration, cmds=f.read()
             )
-        print("Read", filename)
-        return commands
+            print("Read", filename)
+            return commands
     except Exception:
         print("Error whilst running", filename)
         raise

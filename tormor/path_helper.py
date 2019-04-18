@@ -3,7 +3,6 @@ import os
 
 def get_schema_path():
     MYDIR = os.getcwd()
-    print(MYDIR)
     path = []
     env_schema_path = os.getenv("SCHEMA_PATH")
     if env_schema_path:
