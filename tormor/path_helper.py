@@ -2,7 +2,7 @@ from tormor.exceptions import SchemaPathNotFound
 import os
 
 def get_schema_path():
-    MYDIR = os.path.dirname(os.path.abspath(__file__))
+    MYDIR = os.getcwd()
     print(MYDIR)
     path = []
     env_schema_path = os.getenv("SCHEMA_PATH")
