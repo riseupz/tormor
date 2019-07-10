@@ -4,7 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-"psycopg2-binary" = "*"
+black = "*"
+pytest = "*"
+asyncpg = "*"
+click = "*"
 
 [dev-packages]
 flit = "*"

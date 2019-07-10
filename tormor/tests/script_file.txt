@@ -1,0 +1,5 @@
+# Enable modules
+
+enable-modules customer product
+enable-modules employee
+migrate --dry-run
