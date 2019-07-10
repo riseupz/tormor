@@ -46,6 +46,7 @@ class TestScript():
         self.conn.execute('''INSERT INTO module(name) VALUES ('department')''')
         result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate', '--dry-run'])
         assert result.exit_code == 0
+        assert self.conn.fetch('''SELECT * FROM migration''') == []
 
     def test_script_to_migrate_wrong_option(self):
         result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate', 'dry-run'])
@@ -70,6 +71,7 @@ class TestScript():
     def test_script_to_enable_modules_dry_run(self):
         result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'enable-modules', '--dry-run', 'module1', 'module2'])
         assert result.exit_code == 0
+        assert self.conn.fetch('''SELECT * FROM module''') == []
 
     def test_script_to_enable_modules_without_name(self):
         result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'enable-modules'])

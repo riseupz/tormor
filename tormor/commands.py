@@ -71,7 +71,7 @@ def enable_modules(ctx, dry_run, modules):
     try:
         current_modules = conn.load_modules()
     except SchemaNotPresent:
-        query += BOOTSTRAP_SQL
+        conn.execute(BOOTSTRAP_SQL)
         current_modules = conn.load_modules()
     for each_module in modules_to_be_added.difference(current_modules):
         query += ADD_MODULE.replace("$1", "\'" + each_module +"\'")
@@ -103,6 +103,7 @@ def execute_sql_file(ctx, sqlfile):
 @click.argument('filename', required=True, nargs=1)
 def include(ctx, filename):
     """Run all commands inside a file"""
+
     with open(filename, newline="") as f:
         lines = csv.reader(f, delimiter=" ")
         for each_line in lines:
@@ -119,7 +120,11 @@ def include(ctx, filename):
                     else:
                         raise click.ClickException("Error in migrate command")
                 elif cmd == "enable-modules":
-                    ctx.invoke(enable_modules, modules = each_line)
+                    if each_line[0] == '--dry-run':
+                        each_line.pop(0)
+                        ctx.invoke(enable_modules, dry_run = True, modules = each_line)
+                    else:
+                        ctx.invoke(enable_modules, dry_run = False, modules = each_line)
                 elif cmd == "sql" and len(each_line) == 1:
                     ctx.invoke(execute_sql_file, sqlfile = each_line[0])
                 else:
