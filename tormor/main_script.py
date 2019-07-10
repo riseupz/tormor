@@ -22,6 +22,7 @@ def script(ctx, h, d, u, p, password):
     dsn = makeDSN(cnx_destination)
     ctx.obj = {'cnx': Connection(dsn)}
 
+
 script.add_command(migrate)
 script.add_command(enable_modules)
 script.add_command(execute_sql_file)

@@ -45,6 +45,11 @@ class TestScript():
         self.conn.execute('''INSERT INTO module(name) VALUES ('product')''')
         self.conn.execute('''INSERT INTO module(name) VALUES ('department')''')
         result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate', '--dry-run'])
+        assert result.exit_code == 0
+
+    def test_script_to_migrate_wrong_option(self):
+        result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate', 'dry-run'])
+        assert result.exit_code == click.UsageError.exit_code
 
     def test_script_to_include(self):
         self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'include', 'tests/script_file.txt'])
@@ -61,6 +66,10 @@ class TestScript():
         result = self.conn.fetch("SELECT name FROM module")
         actual_result = set(record.get("name") for record in result)
         assert "module1" in actual_result and "module2" in actual_result
+
+    def test_script_to_enable_modules_dry_run(self):
+        result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'enable-modules', '--dry-run', 'module1', 'module2'])
+        assert result.exit_code == 0
 
     def test_script_to_enable_modules_without_name(self):
         result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'enable-modules'])
