@@ -75,6 +75,8 @@ def enable_modules(ctx, dry_run, modules):
         current_modules = conn.load_modules()
     for each_module in modules_to_be_added.difference(current_modules):
         query += ADD_MODULE.replace("$1", "\'" + each_module +"\'")
+    if not query:
+        return
     if dry_run:
         print(query)
     else:
@@ -112,13 +114,13 @@ def include(ctx, filename):
                 if cmd == "migrate":
                     if len(each_line) == 0:
                         ctx.invoke(migrate, dry_run = False)
-                    if len(each_line) == 1:
+                    elif len(each_line) == 1:
                         if each_line[0] == '--dry-run':
                             ctx.invoke(migrate, dry_run = True)
                         else:
-                            raise click.ClickException("Error in migrate command")
+                            raise click.ClickException("Migrate command got an unexpected option argument: {}".format(each_line))
                     else:
-                        raise click.ClickException("Error in migrate command")
+                        raise click.ClickException("Migrate command takes at most 1 argument but {} were given".format(len(each_line)))
                 elif cmd == "enable-modules":
                     if each_line[0] == '--dry-run':
                         each_line.pop(0)
