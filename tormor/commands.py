@@ -50,9 +50,9 @@ def migrate(ctx, dry_run):
             query += get_migrate_sql(module, migration, os.path.join(path, module, migration))
     if query:
         if not dry_run:
-            print("\*Migrating modules...*\\")
+            print("/*Migrating modules...*/")
             conn.execute(query)
-            print("\*Successfully migrated modules*\\")
+            print("/*Successfully migrated modules*/")
         else:
             print(query)
     else:
@@ -95,7 +95,7 @@ def execute_sql_file(ctx, sqlfile):
         with open(sqlfile) as f:
             commands = f.read()
             conn.execute(commands)
-        print("\*", sqlfile, "successfully executed*\\")
+        print("/*", sqlfile, "successfully executed*/")
     except Exception:
         print("Error whilst running", sqlfile)
         raise
@@ -142,7 +142,7 @@ def get_migrate_sql(module, migration, filename):
             """.format(
                 module=module, migration=migration, cmds=f.read()
             )
-            print("\*Read", filename, "*\\")
+            print("/*Read", filename, "*/")
             return commands
     except Exception:
         print("Error whilst running", filename)
